@@ -32,6 +32,7 @@ async function run() {
         // Send a ping to confirm a successful connection
 
         const glaryCollection = client.db('Dagma-edu').collection('photoGlary')
+        const teacherCollection = client.db('Dagma-edu').collection('teacher')
 
         app.get('/allMemorys', async(req, res)=>{
             const result = await glaryCollection.find().toArray()
@@ -41,6 +42,17 @@ async function run() {
             const id = req.params.id
             const query = {_id : new ObjectId(id)}
             const result = await glaryCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.get('/allTeachers', async(req, res)=>{
+            const result = await teacherCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.post('/addTeacher', async(req, res)=>{
+            const data = req.body
+            const result = await teacherCollection.insertOne(data)
             res.send(result)
         })
 
