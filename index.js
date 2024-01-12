@@ -56,6 +56,24 @@ async function run() {
             res.send(result)
         })
 
+        app.put('/update/teacher/:id', async(req, res)=>{
+            const teacherData = req.body
+            const id = req.params.id
+            const filter = {_id : new ObjectId(id)}
+            const options = { upsert: true };
+            const updateDoc = {
+                $set : {
+                    name : teacherData.name,
+                    subject : teacherData.subject,
+                    number : teacherData.number,
+                    photo : teacherData.photo,
+                    email : teacherData.email
+                }
+            }
+            const result = await teacherCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
+
         app.post('/addTeacher', async(req, res)=>{
             const data = req.body
             const result = await teacherCollection.insertOne(data)
