@@ -33,70 +33,115 @@ async function run() {
 
         const glaryCollection = client.db('Dagma-edu').collection('photoGlary')
         const teacherCollection = client.db('Dagma-edu').collection('teacher')
+        const noticeCollection = client.db('Dagma-edu').collection('notice')
 
-        app.get('/allMemorys', async(req, res)=>{
+        app.get('/allMemorys', async (req, res) => {
             const result = await glaryCollection.find().toArray()
             res.send(result)
         })
-        app.get('/singleMemory/:id', async(req, res)=>{
+        app.get('/singleMemory/:id', async (req, res) => {
             const id = req.params.id
-            const query = {_id : new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await glaryCollection.findOne(query)
             res.send(result)
         })
 
-        app.delete('/memory/delete/:id', async(req, res)=>{
+        app.delete('/memory/delete/:id', async (req, res) => {
             const id = req.params.id
-            const filter = {_id : new ObjectId(id)}
+            const filter = { _id: new ObjectId(id) }
             const result = await glaryCollection.deleteOne(filter)
             res.send(result)
         })
 
-        app.get('/allTeachers', async(req, res)=>{
+        app.get('/allTeachers', async (req, res) => {
             const result = await teacherCollection.find().toArray()
             res.send(result)
         })
-        app.get('/teacher/:id', async(req, res)=>{
+        app.get('/teacher/:id', async (req, res) => {
             const id = req.params.id
-            const query = {_id : new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await teacherCollection.findOne(query)
             res.send(result)
         })
 
-        app.put('/update/teacher/:id', async(req, res)=>{
+        app.put('/update/teacher/:id', async (req, res) => {
             const teacherData = req.body
             const id = req.params.id
-            const filter = {_id : new ObjectId(id)}
+            const filter = { _id: new ObjectId(id) }
             const options = { upsert: true };
             const updateDoc = {
-                $set : {
-                    name : teacherData.name,
-                    subject : teacherData.subject,
-                    number : teacherData.number,
-                    photo : teacherData.photo,
-                    email : teacherData.email
+                $set: {
+                    name: teacherData.name,
+                    subject: teacherData.subject,
+                    number: teacherData.number,
+                    photo: teacherData.photo,
+                    email: teacherData.email
                 }
             }
             const result = await teacherCollection.updateOne(filter, updateDoc, options)
             res.send(result)
         })
 
-        app.post('/addTeacher', async(req, res)=>{
+        app.get('/singleNotice/:id', async(req, res)=>{
+            const id = req.params.id
+            const filter = {_id : new ObjectId(id)}
+            const result = await noticeCollection.findOne(filter)
+            res.send(result)
+        })
+
+        app.put('/notice/update/:id', async (req, res) => {
+            const id = req.params.id
+            const noticeData = req.body
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    title: noticeData.title,
+                    photo: noticeData.photo,
+                    UpdateDate : noticeData.UpdateDate,
+                    status : noticeData.status
+                }
+            }
+            const result = await noticeCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
+
+
+        app.post('/addTeacher', async (req, res) => {
             const data = req.body
             const result = await teacherCollection.insertOne(data)
             res.send(result)
         })
 
-        app.post('/addMemory', async(req, res)=>{
+        app.get('/all/notice', async (req, res) => {
+            const result = await noticeCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.post('/add/notice', async (req, res) => {
+            const data = req.body
+            const result = await noticeCollection.insertOne(data)
+            res.send(result)
+        })
+
+
+        app.post('/addMemory', async (req, res) => {
             const data = req.body
             const result = await glaryCollection.insertOne(data)
             res.send(result)
         })
 
-        app.delete('/teacher/delete/:id', async(req, res)=>{
+        app.delete('/teacher/delete/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            const result = await teacherCollection.deleteOne(filter)
+            res.send(result)
+        })
+
+        app.delete('/notice/delete/:id', async(req, res)=>{
             const id = req.params.id
             const filter = {_id : new ObjectId(id)}
-            const result = await teacherCollection.deleteOne(filter)
+            const result = await noticeCollection.deleteOne(filter)
             res.send(result)
         })
 
