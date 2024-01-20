@@ -114,7 +114,7 @@ async function run() {
         })
 
         app.get('/all/notice', async (req, res) => {
-            const result = await noticeCollection.find().toArray()
+            const result = await noticeCollection.find().sort({date : -1}).toArray()
             res.send(result)
         })
 
