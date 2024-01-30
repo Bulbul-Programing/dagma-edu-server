@@ -34,6 +34,8 @@ async function run() {
         const glaryCollection = client.db('Dagma-edu').collection('photoGlary')
         const teacherCollection = client.db('Dagma-edu').collection('teacher')
         const noticeCollection = client.db('Dagma-edu').collection('notice')
+        const usersCollection = client.db('Dagma-edu').collection('users')
+        
 
         app.get('/allMemorys', async (req, res) => {
             const result = await glaryCollection.find().toArray()
@@ -63,6 +65,12 @@ async function run() {
             const result = await teacherCollection.findOne(query)
             res.send(result)
         })
+        app.get('/getTeacher/role/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }
+            const result = await teacherCollection.findOne(query)
+            res.send(result)
+        })
 
         app.put('/update/teacher/:id', async (req, res) => {
             const teacherData = req.body
@@ -82,9 +90,9 @@ async function run() {
             res.send(result)
         })
 
-        app.get('/singleNotice/:id', async(req, res)=>{
+        app.get('/singleNotice/:id', async (req, res) => {
             const id = req.params.id
-            const filter = {_id : new ObjectId(id)}
+            const filter = { _id: new ObjectId(id) }
             const result = await noticeCollection.findOne(filter)
             res.send(result)
         })
@@ -98,8 +106,8 @@ async function run() {
                 $set: {
                     title: noticeData.title,
                     photo: noticeData.photo,
-                    UpdateDate : noticeData.UpdateDate,
-                    status : noticeData.status
+                    UpdateDate: noticeData.UpdateDate,
+                    status: noticeData.status
                 }
             }
             const result = await noticeCollection.updateOne(filter, updateDoc, options)
@@ -113,8 +121,27 @@ async function run() {
             res.send(result)
         })
 
+        app.get('/user/:email', async (req, res) => {
+            const userEmail = req.params.email
+            const query = { email: userEmail }
+            const result = await usersCollection.findOne(query)
+            res.send(result)
+        })
+        app.post('/add/new/user', async (req, res) => {
+            const data = req.body
+            const query = { email: data.email }
+            console.log(data);
+            const existingUser = await usersCollection.findOne(query)
+            if (existingUser) {
+                console.log('bulbul');
+                return res.send('user already Added')
+            }
+            const result = await usersCollection.insertOne(data)
+            res.send(result)
+        })
+
         app.get('/all/notice', async (req, res) => {
-            const result = await noticeCollection.find().sort({date : -1}).toArray()
+            const result = await noticeCollection.find().sort({ date: -1 }).toArray()
             res.send(result)
         })
 
@@ -138,9 +165,9 @@ async function run() {
             res.send(result)
         })
 
-        app.delete('/notice/delete/:id', async(req, res)=>{
+        app.delete('/notice/delete/:id', async (req, res) => {
             const id = req.params.id
-            const filter = {_id : new ObjectId(id)}
+            const filter = { _id: new ObjectId(id) }
             const result = await noticeCollection.deleteOne(filter)
             res.send(result)
         })
