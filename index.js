@@ -35,6 +35,7 @@ async function run() {
         const teacherCollection = client.db('Dagma-edu').collection('teacher')
         const noticeCollection = client.db('Dagma-edu').collection('notice')
         const usersCollection = client.db('Dagma-edu').collection('users')
+        const forumCollection = client.db('Dagma-edu').collection('forum')
         
 
         app.get('/allMemorys', async (req, res) => {
@@ -69,6 +70,11 @@ async function run() {
             const email = req.params.email
             const query = { email: email }
             const result = await teacherCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.get('/all/forum/post', async(req, res)=>{
+            const result = await forumCollection.find().sort({ date: -1}).toArray()
             res.send(result)
         })
 
@@ -114,6 +120,11 @@ async function run() {
             res.send(result)
         })
 
+        app.post('/create/newPost', async(req, res)=>{
+            const postData = req.body
+            const result = await forumCollection.insertOne(postData)
+            res.send(result)
+        })
 
         app.post('/addTeacher', async (req, res) => {
             const data = req.body
