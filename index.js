@@ -36,10 +36,12 @@ async function run() {
         const noticeCollection = client.db('Dagma-edu').collection('notice')
         const usersCollection = client.db('Dagma-edu').collection('users')
         const forumCollection = client.db('Dagma-edu').collection('forum')
-        
+        const likeCollection = client.db('Dagma-edu').collection('likes')
+        const commentCollection = client.db('Dagma-edu').collection('comments')
+
 
         app.get('/allMemorys', async (req, res) => {
-            const result = await glaryCollection.find().toArray()
+            const result = await glaryCollection.find().sort({ date: -1 }).toArray()
             res.send(result)
         })
         app.get('/singleMemory/:id', async (req, res) => {
@@ -73,8 +75,8 @@ async function run() {
             res.send(result)
         })
 
-        app.get('/all/forum/post', async(req, res)=>{
-            const result = await forumCollection.find().sort({ date: -1}).toArray()
+        app.get('/all/forum/post', async (req, res) => {
+            const result = await forumCollection.find().sort({ date: -1 }).toArray()
             res.send(result)
         })
 
@@ -120,7 +122,7 @@ async function run() {
             res.send(result)
         })
 
-        app.post('/create/newPost', async(req, res)=>{
+        app.post('/create/newPost', async (req, res) => {
             const postData = req.body
             const result = await forumCollection.insertOne(postData)
             res.send(result)
@@ -129,6 +131,37 @@ async function run() {
         app.post('/addTeacher', async (req, res) => {
             const data = req.body
             const result = await teacherCollection.insertOne(data)
+            res.send(result)
+        })
+
+        app.put('/add/comment/:id', async (req, res) => {
+            const id = req.params.id
+            const commentData = req.body
+            const filter = { _id: new ObjectId(id) }
+            let getCommentPost = await forumCollection.findOne(filter)
+            getCommentPost.allCommentData.push(commentData)
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    allCommentData: getCommentPost.allCommentData
+                }
+            }
+            const result = await forumCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
+
+        app.put('/delete/comment', async(req, res)=>{
+            const data = req.body
+            const filter = {_id : new ObjectId(data.postId)}
+            const selectPost = await forumCollection.findOne(filter)
+            const existComment = selectPost.allCommentData.filter(comment => comment.idForComment !== data.commentId)
+            const options = { upsert: true };
+            const updateComment = {
+                $set : {
+                    allCommentData : existComment
+                }
+            }
+            const result = await forumCollection.updateOne(filter, updateComment, options)
             res.send(result)
         })
 
@@ -141,10 +174,8 @@ async function run() {
         app.post('/add/new/user', async (req, res) => {
             const data = req.body
             const query = { email: data.email }
-            console.log(data);
             const existingUser = await usersCollection.findOne(query)
             if (existingUser) {
-                console.log('bulbul');
                 return res.send('user already Added')
             }
             const result = await usersCollection.insertOne(data)
@@ -166,6 +197,13 @@ async function run() {
         app.post('/addMemory', async (req, res) => {
             const data = req.body
             const result = await glaryCollection.insertOne(data)
+            res.send(result)
+        })
+
+        app.delete('/post/delete/:id', async(req, res)=>{
+            const id = req.params.id
+            const filter = {_id : new ObjectId(id)}
+            const result = await forumCollection.deleteOne(filter)
             res.send(result)
         })
 
