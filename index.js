@@ -28,7 +28,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        // await client.connect();
+        await client.connect();
         // Send a ping to confirm a successful connection
 
         const glaryCollection = client.db('Dagma-edu').collection('photoGlary')
@@ -36,8 +36,9 @@ async function run() {
         const noticeCollection = client.db('Dagma-edu').collection('notice')
         const usersCollection = client.db('Dagma-edu').collection('users')
         const forumCollection = client.db('Dagma-edu').collection('forum')
-        const likeCollection = client.db('Dagma-edu').collection('likes')
-        const commentCollection = client.db('Dagma-edu').collection('comments')
+        const cornerCollection = client.db('Dagma-edu').collection('corner')
+        const resultCollection = client.db('Dagma-edu').collection('result')
+
 
 
         app.get('/allMemorys', async (req, res) => {
@@ -150,15 +151,15 @@ async function run() {
             res.send(result)
         })
 
-        app.put('/delete/comment', async(req, res)=>{
+        app.put('/delete/comment', async (req, res) => {
             const data = req.body
-            const filter = {_id : new ObjectId(data.postId)}
+            const filter = { _id: new ObjectId(data.postId) }
             const selectPost = await forumCollection.findOne(filter)
             const existComment = selectPost.allCommentData.filter(comment => comment.idForComment !== data.commentId)
             const options = { upsert: true };
             const updateComment = {
-                $set : {
-                    allCommentData : existComment
+                $set: {
+                    allCommentData: existComment
                 }
             }
             const result = await forumCollection.updateOne(filter, updateComment, options)
@@ -193,6 +194,19 @@ async function run() {
             res.send(result)
         })
 
+        app.get('/get/corner/data', async (req, res) => {
+            const result = await cornerCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.post('/update/corner/:id', async (req, res) => {
+            const cornerData = req.body
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            await cornerCollection.deleteOne(filter)
+            const result = await cornerCollection.insertOne(cornerData)
+            res.send(result)
+        })
 
         app.post('/addMemory', async (req, res) => {
             const data = req.body
@@ -200,9 +214,9 @@ async function run() {
             res.send(result)
         })
 
-        app.delete('/post/delete/:id', async(req, res)=>{
+        app.delete('/post/delete/:id', async (req, res) => {
             const id = req.params.id
-            const filter = {_id : new ObjectId(id)}
+            const filter = { _id: new ObjectId(id) }
             const result = await forumCollection.deleteOne(filter)
             res.send(result)
         })
@@ -221,6 +235,48 @@ async function run() {
             res.send(result)
         })
 
+        app.get('/all/result', async (req, res) => {
+            const result = await resultCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/single/result/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            const result = await resultCollection.findOne(filter)
+            res.send(result)
+        })
+
+        app.put('/result/update/:id', async (req, res) => {
+            const id = req.params.id
+            const updateResultData = req.body
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    updatePersonEmail: updateResultData.updatePersonEmail,
+                    updatePerson: updateResultData.updatePerson,
+                    publisherEmail: updateResultData.publisherEmail,
+                    publisherName: updateResultData.publisherName,
+                    date: updateResultData.date,
+                    title: updateResultData.title,
+                    select: updateResultData.select,
+                    resultPic: updateResultData.resultPic,
+                    participant: updateResultData.participant,
+                    aPlus: updateResultData.aPlus,
+                    passed: updateResultData.passed,
+                    failed: updateResultData.failed,
+                }
+            }
+            const result = await resultCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
+
+        app.post('/add/result', async (req, res) => {
+            const resultData = req.body
+            const result = await resultCollection.insertOne(resultData)
+            res.send(result)
+        })
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
