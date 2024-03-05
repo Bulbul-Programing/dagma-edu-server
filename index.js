@@ -236,7 +236,14 @@ async function run() {
         })
 
         app.get('/all/result', async (req, res) => {
-            const result = await resultCollection.find().toArray()
+            const result = await resultCollection.find().sort({date : -1}).toArray()
+            res.send(result)
+        })
+            
+        app.get('/section/result/:section', async(req, res)=>{
+            const section = req.params.section
+            const filter = {select : section}
+            const result =await resultCollection.find(filter).toArray()
             res.send(result)
         })
 
@@ -275,6 +282,13 @@ async function run() {
         app.post('/add/result', async (req, res) => {
             const resultData = req.body
             const result = await resultCollection.insertOne(resultData)
+            res.send(result)
+        })
+
+        app.delete('/delete/result/:id', async(req, res)=>{
+            const id = req.params.id
+            const filter = {_id : new ObjectId(id)}
+            const result = await resultCollection.deleteOne(filter)
             res.send(result)
         })
 
