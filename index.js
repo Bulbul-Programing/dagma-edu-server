@@ -228,6 +228,20 @@ async function run() {
             res.send(result)
         })
 
+        app.put('/update/teacher/role/:id', async (req, res) => {
+            const id = req.params.id
+            const {teacherRole} = req.body
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    teacherRole: teacherRole
+                }
+            }
+            const result = await teacherCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
+
         app.delete('/notice/delete/:id', async (req, res) => {
             const id = req.params.id
             const filter = { _id: new ObjectId(id) }
@@ -236,14 +250,14 @@ async function run() {
         })
 
         app.get('/all/result', async (req, res) => {
-            const result = await resultCollection.find().sort({date : -1}).toArray()
+            const result = await resultCollection.find().sort({ date: -1 }).toArray()
             res.send(result)
         })
-            
-        app.get('/section/result/:section', async(req, res)=>{
+
+        app.get('/section/result/:section', async (req, res) => {
             const section = req.params.section
-            const filter = {select : section}
-            const result =await resultCollection.find(filter).toArray()
+            const filter = { select: section }
+            const result = await resultCollection.find(filter).toArray()
             res.send(result)
         })
 
@@ -285,9 +299,9 @@ async function run() {
             res.send(result)
         })
 
-        app.delete('/delete/result/:id', async(req, res)=>{
+        app.delete('/delete/result/:id', async (req, res) => {
             const id = req.params.id
-            const filter = {_id : new ObjectId(id)}
+            const filter = { _id: new ObjectId(id) }
             const result = await resultCollection.deleteOne(filter)
             res.send(result)
         })
