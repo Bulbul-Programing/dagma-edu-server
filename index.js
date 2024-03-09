@@ -123,6 +123,19 @@ async function run() {
             res.send(result)
         })
 
+        app.put('/notice/status/update', async(req, res)=>{
+            const id = req.query.id
+            const updateStatus = req.body
+            const filter = {_id : new ObjectId(id)}
+            const updateDoc = {
+                $set:{
+                    status : updateStatus.status
+                }
+            }
+            const result = await noticeCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
+
         app.post('/create/newPost', async (req, res) => {
             const postData = req.body
             const result = await forumCollection.insertOne(postData)
