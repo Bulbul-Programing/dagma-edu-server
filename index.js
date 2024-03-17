@@ -73,7 +73,7 @@ async function run() {
             const email = req.params.email
             const query = { email: email }
             const result = await teacherCollection.findOne(query)
-            res.send(result)
+            res.send(result) 
         })
 
         app.get('/all/forum/post', async (req, res) => {
