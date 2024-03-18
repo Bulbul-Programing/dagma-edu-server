@@ -5,7 +5,7 @@ const app = express()
 const port = process.env.PORT || 5000
 
 app.use(cors({
-    origin: ['http://localhost:5174', 'http://localhost:5173',],
+    origin: ['http://localhost:5174', 'http://localhost:5173','https://dagma-edu.web.app', 'https://dagma-edu.firebaseapp.com'],
     credentials: true,
     optionsSuccessStatus: 200,
     methods: ['GET', 'POST', 'PUT', 'DELETE']
@@ -28,7 +28,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
         // Send a ping to confirm a successful connection
 
         const glaryCollection = client.db('Dagma-edu').collection('photoGlary')
